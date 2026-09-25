@@ -1,61 +1,7 @@
 # Zepto Data & AI Platform — Capstone Project
 
-Welcome to the unified Zepto Data & AI Platform repository. This platform brings together three interconnected AI/ML engineering modules:
-1. **`/data_pipeline`**: Web scraper, ETL pipeline, and relational database engine storing catalog intelligence.
-2. **`/analytics`**: Comprehensive EDA, statistical profiling, predictive modeling, and pipeline deployment on customer data.
-3. **`/support_assistant`**: LangGraph RAG service deployed with FastAPI, Pydantic validation, and Docker.
 
----
 
-## Setup & Environment Installation
-
-### Requirements Option
-A consolidated `requirements.txt` is provided at the repository root for single-command installation.
-
-### Environment Setup Instructions
-```bash
-# Clone the repository
-git clone [https://github.com/your-username/zepto-ai-platform.git](https://github.com/your-username/zepto-ai-platform.git)
-cd zepto-ai-platform
-
-# Create and activate a virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows use: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-Module Execution Guide1. Data Pipeline (/data_pipeline)Bashcd data_pipeline
-python scraper_pipeline.py
-Output: Generates zepto_catalog.db SQLite database, scrapes $\ge 60$ products, performs data cleaning, applies currency conversions ($1 \text{ GBP} = 105.50 \text{ INR}$), runs 5 target SQL queries, and verifies query parity with Pandas pd.merge().2. Analytics Pipeline (/analytics)Bashcd analytics
-# Run notebooks sequentially using Jupyter or execute via CLI:
-jupyter nbconvert --to notebook --execute 01_eda.ipynb
-jupyter nbconvert --to notebook --execute 02_modeling.ipynb
-Output: Performs data profiling, generates titanic.csv offline fallback, runs univariate/bivariate/multivariate visual analysis, trains three classification models and one linear regression model, performs hyperparameter tuning, and exports zepto_titanic_pipeline.joblib.3. Support Assistant Service (/support_assistant)Bashcd support_assistant
-
-# Run locally in default MOCK_LLM mode (No API Key Required)
-uvicorn main:app --host 0.0.0.0 --port 7860
-
-# Docker Execution Baseline
-docker build -t zepto-support-assistant .
-docker run -p 7860:7860 -e MOCK_LLM=1 zepto-support-assistant
-Endpoints:POST /ask: Accepts JSON {"query": "string"} and returns structured JSON with answer, sources, and confidence.Architecture Design & Summary DecisionsData Pipeline ArchitectureCurrency Fixed Conversion: Hardcoded project constant ($1 \text{ GBP} = 105.50 \text{ INR}$).Database Normalization: Two-table schema (categories parent, books child) with FOREIGN KEY constraints enforced to ensure relational integrity.Analytics Pipeline ArchitectureLeakage Avoidance: All imputation, categorical encoding, and feature scaling operations are contained within Scikit-Learn ColumnTransformer / Pipeline objects fit exclusively on training splits.Model Export: Full end-to-end preprocessing pipeline combined with the classifier exported as a single .joblib binary.Support Assistant RAG ArchitectureOrchestration: StateGraph using LangGraph with intent classification routing.Deterministic Default: Operates out-of-the-box with zero API requirements via MOCK_LLM=1. Uses local all-MiniLM-L6-v2 embeddings and ChromaDB vector indexing.
-### `requirements.txt`
-```text
-requests>=2.31.0
-beautifulsoup4>=4.12.2
-pandas>=2.0.0
-numpy>=1.24.0
-seaborn>=0.13.0
-matplotlib>=3.7.0
-scikit-learn>=1.3.0
-imbalanced-learn>=0.11.0
-joblib>=1.3.0
-fastapi>=0.104.0
-uvicorn>=0.24.0
-pydantic>=2.4.0
-chromadb>=0.4.15
-sentence-transformers>=2.2.2
-langgraph>=0.0.20
 Module 1: Data Pipeline (/data_pipeline)/data_pipeline/README.mdMarkdown# Data Pipeline Module
 
 ## Design Decisions & Technical Documentation
